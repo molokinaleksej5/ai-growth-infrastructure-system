@@ -1,0 +1,63 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: ai_growth_postgres
+    environment:
+      POSTGRES_DB: ai_growth
+      POSTGRES_USER: ai_growth_user
+      POSTGRES_PASSWORD: ai_growth_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: ai_growth_redis
+    ports:
+      - "6379:6379"
+
+  backend:
+    build: ./backend
+    container_name: ai_growth_backend
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+
+  worker:
+    build: ./backend
+    container_name: ai_growth_worker
+    env_file:
+      - .env
+    command: celery -A app.workers.celery_app worker --loglevel=info
+    depends_on:
+      - backend
+      - redis
+      - postgres
+
+  telegram_bot:
+    build: ./telegram_bot
+    container_name: ai_growth_telegram_bot
+    env_file:
+      - .env
+    depends_on:
+      - backend
+
+  admin_dashboard:
+    build: ./admin_dashboard
+    container_name: ai_growth_admin_dashboard
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

@@ -1,0 +1,20 @@
+import requests
+from config import BACKEND_URL
+class BackendClient:
+    def get_leads(self): return requests.get(f'{BACKEND_URL}/leads/',timeout=20).json()
+    def get_analytics(self): return requests.get(f'{BACKEND_URL}/analytics/summary',timeout=20).json()
+    def get_recommendations(self): return requests.get(f'{BACKEND_URL}/analytics/recommendations',timeout=30).json()
+    def get_management_report(self): return requests.get(f'{BACKEND_URL}/analytics/management-report',timeout=90).json()
+    def hunt_leads(self,query,region): return requests.post(f'{BACKEND_URL}/leads/hunt',json={'query':query,'region':region,'limit_per_source':5},timeout=90).json()
+    def update_lead_status(self,lead_id,status): return requests.patch(f'{BACKEND_URL}/leads/{lead_id}/status',params={'status':status},timeout=20).json()
+    def create_campaign(self,name,offer,region,niche): return requests.post(f'{BACKEND_URL}/outreach/campaigns',json={'name':name,'offer':offer,'target_region':region,'target_niche':niche,'tone':'professional'},timeout=30).json()
+    def generate_sequence(self,campaign_id,lead_id,channel='email'): return requests.post(f'{BACKEND_URL}/outreach/sequence/generate',json={'campaign_id':campaign_id,'lead_id':lead_id,'channel':channel,'steps':3},timeout=90).json()
+    def get_sequences(self): return requests.get(f'{BACKEND_URL}/outreach/sequences',timeout=20).json()
+    def create_market_watch(self,name,region,niche,keywords): return requests.post(f'{BACKEND_URL}/market/watches',json={'name':name,'region':region,'niche':niche,'keywords':keywords,'sources':'job boards, startup directories, contractor platforms, tenders'},timeout=30).json()
+    def run_market_watch(self,watch_id): return requests.post(f'{BACKEND_URL}/market/watches/{watch_id}/run',timeout=90).json()
+    def get_market_signals(self): return requests.get(f'{BACKEND_URL}/market/signals/top',timeout=20).json()
+    def create_content_plan(self,name,audience,niche,region,goals): return requests.post(f'{BACKEND_URL}/content/plans',json={'name':name,'target_audience':audience,'niche':niche,'region':region,'goals':goals},timeout=90).json()
+    def generate_content(self,content_plan_id,content_type,topic): return requests.post(f'{BACKEND_URL}/content/generate',json={'content_plan_id':content_plan_id,'content_type':content_type,'topic':topic},timeout=90).json()
+    def get_content_items(self): return requests.get(f'{BACKEND_URL}/content/items',timeout=20).json()
+    def generate_proposal(self,lead_id): return requests.post(f'{BACKEND_URL}/proposals/generate',json={'lead_id':lead_id,'offer_type':'AI automation / custom software / B2B growth infrastructure','pricing_model':'fixed project + monthly support','currency':'USD'},timeout=120).json()
+    def get_proposals(self): return requests.get(f'{BACKEND_URL}/proposals/',timeout=20).json()
